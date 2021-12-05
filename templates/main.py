@@ -29,11 +29,14 @@ class Game():
         self.fps = self.main_clock.get_fps()
         self.fps_display = ''
         self.fps_show = True
+        self.fps_changed = False
 
         # Keys pressed ------------------------------------ #
         self.keys = {
             K_LCTRL: 0,
             K_p: 0,
+            KEYUP: 0,
+            KEYDOWN: 0
         }
 
 
@@ -53,6 +56,9 @@ class Game():
                 self.quit()
 
             if event.type == KEYDOWN:
+                self.keys[KEYDOWN] = 1
+                self.keys[KEYUP] = 0
+                
                 if event.key == K_ESCAPE:
                     self.quit()
 
@@ -63,6 +69,9 @@ class Game():
                     self.keys[K_p] = 1
 
             if event.type == KEYUP:
+                self.keys[KEYDOWN] = 0
+                self.keys[KEYUP] = 1
+
                 if event.key == K_LCTRL:
                     self.keys[K_LCTRL] = 0
 
@@ -74,8 +83,12 @@ class Game():
     def update(self, dt) -> None:
         self.fps_update()
 
-        if self.keys[K_LCTRL] and self.keys[K_p]:
+        if self.keys[K_LCTRL] and self.keys[K_p] and not self.fps_changed:
             self.fps_show = not self.fps_show
+            self.fps_changed = True
+
+        if self.keys[KEYUP]:
+            self.fps_changed = False
 
 
     # Draw Game --------------------------------- #
