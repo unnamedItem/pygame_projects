@@ -14,9 +14,9 @@ class Game():
         # Display Settings -------------------------------- #
         self.scale = 2
         self.display_size = Vector2(DISPLAY_SIZE)
-        self.screen_size = Vector2(SCREEN_SIZE) * self.scale
+        self.screen_size = Vector2(DISPLAY_SIZE) * self.scale
         self.display = pygame.Surface(self.display_size)
-        self.screen = pygame.display.set_mode((self.screen_size), RESIZABLE | DOUBLEBUF, DEFAULT_BPP)
+        self.screen = pygame.display.set_mode((self.screen_size), DOUBLEBUF, DEFAULT_BPP)
         self.game_name = game_name
         pygame.display.set_caption(game_name)
 
