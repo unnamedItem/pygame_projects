@@ -96,9 +96,11 @@ class Game():
         self.display.fill((30,20,30))
 
         # Layers ------------------------------------- #
-        layer = pygame.Surface(self.display.get_size(), SRCALPHA)
-        self.fps_render(layer)
-        self.display.blit(layer, Vector2())
+        layer0 = pygame.Surface(self.display.get_size(), SRCALPHA)
+        self.fps_render(layer0)
+
+        # Blit Layers -------------------------------- #
+        self.display.blit(layer0, Vector2())
 
         pygame.transform.scale(self.display, self.screen.get_size(), self.screen)
         pygame.display.flip()
