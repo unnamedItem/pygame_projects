@@ -60,14 +60,17 @@ class Player(pygame.sprite.Sprite):
         self.angle = angle_line(self.pos * self.scale, pointer)
 
 
-    def draw(self, surface: pygame.surface.Surface, font: pygame.font.Font) -> None:
+    def draw(self, surface: pygame.surface.Surface, font: pygame.font.Font) -> None:        
+        img_copy = pygame.transform.rotate(self.image, (self.angle - 90) * -1)
+        surface.blit(img_copy, self.pos - (vec(img_copy.get_size()) / 2))
+
+        pygame.draw.circle(surface, (255, 0, 255), self.pos, 3)
+        pygame.draw.line(surface, (255,0,0), self.pos, (self.pos + self.vel * 0.5), 2)
+        pygame.draw.line(surface, (0,255,0), self.pos, (self.pos + self.acc * 0.5), 2)
+
         vel = str(round(self.vel.magnitude(), 2))
         pos = '(' + str((round(self.pos[0], 2))) + ', ' + str((round(self.pos[1], 2))) + ')'
         text_vel = font.render(vel, True, (255, 255, 255))
         text_pos = font.render(pos, True, (255, 255, 255))
         surface.blit(text_vel, (10, 5))
         surface.blit(text_pos, (10, 15))
-        
-        img_copy = pygame.transform.rotate(self.image, (self.angle - 90) * -1)
-        surface.blit(img_copy, self.pos - (vec(img_copy.get_size()) / 2))
-        pygame.draw.circle(surface, (255, 0, 255), self.pos, 3)
