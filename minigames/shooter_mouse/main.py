@@ -3,7 +3,7 @@ import pygame, sys, time
 from pygame.locals import *
 from pygame import Vector2
 
-from player import Player
+from sprites import Player
 from constants import *
 
 
@@ -38,16 +38,10 @@ class Game():
             K_p: 0,
             KEYUP: 0,
             KEYDOWN: 0,
-            K_w: 0,
-            K_s: 0,
-            K_d: 0,
-            K_a: 0,
         }
 
         # Player data ------------------------------------- #
-        self.player = Player()
-        self.posx = 180
-        self.posy = 120
+        self.player = Player(self.scale, self.display_size / 2)
 
 
     # Run Game ---------------------------------- #
@@ -78,18 +72,6 @@ class Game():
                 if event.key == K_p:
                     self.keys[K_p] = 1
 
-                if event.key == K_w:
-                    self.keys[K_s] = 1
-
-                if event.key == K_s:
-                    self.keys[K_w] = 1
-
-                if event.key == K_d:
-                    self.keys[K_d] = 1
-
-                if event.key == K_a:
-                    self.keys[K_a] = 1
-
             if event.type == KEYUP:
                 self.keys[KEYDOWN] = 0
                 self.keys[KEYUP] = 1
@@ -100,18 +82,6 @@ class Game():
                 if event.key == K_p:
                     self.keys[K_p] = 0
                 
-                if event.key == K_w:
-                    self.keys[K_s] = 0
-
-                if event.key == K_s:
-                    self.keys[K_w] = 0
-
-                if event.key == K_d:
-                    self.keys[K_d] = 0
-
-                if event.key == K_a:
-                    self.keys[K_a] = 0
-
 
     # Update Game ------------------------------- #
     def update(self, dt) -> None:
@@ -121,22 +91,8 @@ class Game():
             self.fps_show = not self.fps_show
             self.fps_changed = True
 
-        if self.keys[KEYUP]:
-            self.fps_changed = False
+        self.player.update(dt, (mx, my))
 
-        if self.keys[K_w]:
-            self.posy += dt * 120
-
-        if self.keys[K_s]:
-            self.posy -= dt * 120
-
-        if self.keys[K_d]:
-            self.posx += dt * 120
-
-        if self.keys[K_a]:
-            self.posx -= dt * 120
-
-        self.player.update((self.posx, self.posy), (mx, my))
         self.fps_update()   
 
 
@@ -148,7 +104,7 @@ class Game():
         layer0 = pygame.Surface(self.display.get_size(), SRCALPHA)
         self.fps_render(layer0)
 
-        self.player.draw(layer0)
+        self.player.draw(layer0, self.font)
 
         # Blit Layers -------------------------------- #
         self.display.blit(layer0, Vector2())
@@ -165,7 +121,7 @@ class Game():
 
     # Delta Time -------------------------------- #
     def delta_time(self) -> float:
-        self.main_clock.tick(0)
+        self.main_clock.tick(FPS_LIMIT)
         self.fps = self.main_clock.get_fps()
         dt = time.time() - self.last_time
         self.last_time = time.time()
@@ -174,7 +130,7 @@ class Game():
 
     # Fps Update -------------------------------- #
     def fps_update(self) -> None:
-        fps_str = str(round(self.fps, 2))
+        fps_str = 'FPS: ' + str(round(self.fps, 2))
         text = self.font.render(fps_str, True, (255, 255, 255))
         self.fps_display = text
 
@@ -182,7 +138,7 @@ class Game():
     # Fps Render -------------------------------- #
     def fps_render(self, layer: pygame.surface.Surface) -> None:
         if self.fps_show:
-            layer.blit(self.fps_display, (self.display_size[0] - 40, 5))
+            layer.blit(self.fps_display, (self.display_size[0] - 65, 5))
 
 
 Game(GAME_NAME).run()
