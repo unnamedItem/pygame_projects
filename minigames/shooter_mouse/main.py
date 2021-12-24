@@ -42,6 +42,7 @@ class Game():
 
         # Player data ------------------------------------- #
         self.player = Player(self.scale, self.display_size / 2)
+        self.bullets = []
 
 
     # Run Game ---------------------------------- #
@@ -55,6 +56,8 @@ class Game():
 
     # Handle events ----------------------------- #
     def process_events(self) -> None:
+        mx, my = pygame.mouse.get_pos()
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 self.quit()
@@ -81,6 +84,11 @@ class Game():
 
                 if event.key == K_p:
                     self.keys[K_p] = 0
+
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == BUTTON_LEFT:
+                    new_bullet = self.player.shoot((mx, my))
+                    self.bullets.append(new_bullet)
                 
 
     # Update Game ------------------------------- #
@@ -91,6 +99,9 @@ class Game():
             self.fps_show = not self.fps_show
             self.fps_changed = True
 
+        for bullet in self.bullets:
+            bullet.update(dt)
+
         self.player.update(dt, (mx, my))
 
         self.fps_update()   
@@ -98,11 +109,14 @@ class Game():
 
     # Draw Game --------------------------------- #
     def draw(self):
-        self.display.fill((30,20,30))
+        self.display.fill(BK_COLOR)
 
         # Layers ------------------------------------- #
         layer0 = pygame.Surface(self.display.get_size(), SRCALPHA)
         self.fps_render(layer0)
+
+        for bullet in self.bullets:
+            bullet.draw(layer0)
 
         self.player.draw(layer0, self.font)
 
@@ -131,7 +145,7 @@ class Game():
     # Fps Update -------------------------------- #
     def fps_update(self) -> None:
         fps_str = 'FPS: ' + str(round(self.fps, 2))
-        text = self.font.render(fps_str, True, (255, 255, 255))
+        text = self.font.render(fps_str, True, WHITE)
         self.fps_display = text
 
 
@@ -139,6 +153,10 @@ class Game():
     def fps_render(self, layer: pygame.surface.Surface) -> None:
         if self.fps_show:
             layer.blit(self.fps_display, (self.display_size[0] - 65, 5))
+
+            bullets_text = 'BULLETS: ' + str(len(self.bullets))
+            text = self.font.render(bullets_text, True, WHITE)
+            layer.blit(text, (self.display_size[0] - 65, 15))
 
 
 Game(GAME_NAME).run()
