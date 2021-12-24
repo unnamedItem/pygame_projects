@@ -6,39 +6,52 @@ from utils import angle_line
 
 vec = Vector2
 
+class Tarjet(pygame.sprite.Sprite):
+    def __init__(self) -> None:
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((40,40))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.update((50,50), (40,40))
+
+
+    def draw(self, surface: pygame.Surface) -> None:
+        surface.blit(self.image, (50,50))
+
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, init_pos: Vector2) -> None:
+    def __init__(self) -> None:
         pygame.sprite.Sprite.__init__(self)
 
         self.image = pygame.Surface(BULLET_SIZE)
         self.image.set_colorkey(COLOR_KEY_0)
         pygame.draw.circle(self.image, BLUE, vec(BULLET_SIZE) / 2, 2)
         pygame.draw.circle(self.image, WHITE, vec(BULLET_SIZE) / 2, 1)
+        self.rect = self.image.get_rect()
 
-        self.pos = vec(init_pos)
+        self.pos = vec(0,0)
         self.vel = vec(0,0)
 
-        self.disable = 0
+        self.disabled = 1
         
 
-    def update(self, dt: float) -> None:
-        if not self.disable:
-            self.pos += self.vel * dt
+    def update(self, dt: float) -> bool:
+        self.pos += self.vel * dt
 
-            if self.pos[0] > DISPLAY_SIZE[0]:
-                self.disable = 1
-            if self.pos[0] < 0:
-                self.disable = 1
-            if self.pos[1] > DISPLAY_SIZE[1]:
-                self.disable = 1
-            if self.pos[1] < 0:
-                self.disable = 1
+        if self.pos[0] > DISPLAY_SIZE[0]:
+            self.disabled = 1
+        if self.pos[0] < 0:
+            self.disabled = 1
+        if self.pos[1] > DISPLAY_SIZE[1]:
+            self.disabled = 1
+        if self.pos[1] < 0:
+            self.disabled = 1
+
+        self.rect.update(self.pos, self.image.get_size())
 
         
     def draw(self, surface: pygame.surface.Surface):
-        if not self.disable:
-            surface.blit(self.image, self.pos)
+        surface.blit(self.image, self.pos)
 
 
 
@@ -57,6 +70,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface(PLAYER_SIZE)
         self.image.set_colorkey(COLOR_KEY_0)
         pygame.draw.polygon(self.image, PLAYER_COLOR, PLAYER_POINTS)
+        self.rect = self.image.get_rect()
 
 
     def update(self, dt: float, pointer: tuple) -> None:
@@ -110,9 +124,12 @@ class Player(pygame.sprite.Sprite):
         surface.blit(text_pos, (10, 15))
 
         
-    def shoot(self, pointer: tuple) -> Bullet:
-        new_bullet = Bullet(self.pos)
+    def shoot(self, pointer: tuple) -> dict:
+        bullet_pos = self.pos
         bullet_dir = (self.pos * self.scale) - vec(pointer)
-        bullet_vel = bullet_dir.normalize() * BULLET_SPEED
-        new_bullet.vel = bullet_vel * -1
-        return new_bullet
+        bullet_vel = bullet_dir.normalize() * BULLET_SPEED * -1
+        bullet_data = {
+            'bullet_pos': vec(bullet_pos),
+            'bullet_vel': vec(bullet_vel)
+        }
+        return bullet_data

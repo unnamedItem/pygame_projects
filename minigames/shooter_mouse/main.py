@@ -3,7 +3,7 @@ import pygame, sys, time
 from pygame.locals import *
 from pygame import Vector2
 
-from sprites import Player
+from sprites import Player, Bullet, Tarjet
 from constants import *
 
 
@@ -42,7 +42,11 @@ class Game():
 
         # Player data ------------------------------------- #
         self.player = Player(self.scale, self.display_size / 2)
-        self.bullets = []
+
+        # Bullets pool ------------------------------------ #
+        self.bullets = [ Bullet() for x in range(BULLET_POOL_SIZE) ]
+
+        self.tarjet = Tarjet()
 
 
     # Run Game ---------------------------------- #
@@ -87,8 +91,13 @@ class Game():
 
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == BUTTON_LEFT:
-                    new_bullet = self.player.shoot((mx, my))
-                    self.bullets.append(new_bullet)
+                    bullet_data = self.player.shoot((mx, my))
+                    for bullet in self.bullets:
+                        if bullet.disabled:
+                            bullet.pos = bullet_data['bullet_pos']
+                            bullet.vel = bullet_data['bullet_vel']
+                            bullet.disabled = 0
+                            break
                 
 
     # Update Game ------------------------------- #
@@ -100,11 +109,17 @@ class Game():
             self.fps_changed = True
 
         for bullet in self.bullets:
-            bullet.update(dt)
+            if not bullet.disabled:
+                bullet.update(dt)
+            
+                collide = pygame.sprite.collide_rect(self.tarjet, bullet)
+                if collide:
+                    self.tarjet.image.fill(RED)
+                else:
+                    self.tarjet.image.fill(WHITE)
 
         self.player.update(dt, (mx, my))
-
-        self.fps_update()   
+        self.fps_update()
 
 
     # Draw Game --------------------------------- #
@@ -116,9 +131,11 @@ class Game():
         self.fps_render(layer0)
 
         for bullet in self.bullets:
-            bullet.draw(layer0)
+            if not bullet.disabled:
+                bullet.draw(layer0)
 
         self.player.draw(layer0, self.font)
+        self.tarjet.draw(layer0)
 
         # Blit Layers -------------------------------- #
         self.display.blit(layer0, Vector2())
@@ -153,10 +170,6 @@ class Game():
     def fps_render(self, layer: pygame.surface.Surface) -> None:
         if self.fps_show:
             layer.blit(self.fps_display, (self.display_size[0] - 65, 5))
-
-            bullets_text = 'BULLETS: ' + str(len(self.bullets))
-            text = self.font.render(bullets_text, True, WHITE)
-            layer.blit(text, (self.display_size[0] - 65, 15))
 
 
 Game(GAME_NAME).run()
