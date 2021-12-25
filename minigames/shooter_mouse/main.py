@@ -42,6 +42,8 @@ class Game():
 
         # Player data ------------------------------------- #
         self.player = Player(self.scale, self.display_size / 2)
+        self.ammo = 100
+        self.ammo_tick = 0
 
         # Bullets pool ------------------------------------ #
         self.bullets = [ Bullet() for x in range(BULLET_POOL_SIZE) ]
@@ -91,13 +93,14 @@ class Game():
                     self.keys[K_p] = 0
 
             if event.type == MOUSEBUTTONDOWN:
-                if event.button == BUTTON_LEFT:
+                if event.button == BUTTON_LEFT and self.ammo >= AMMO_COST:
                     bullet_data = self.player.shoot((mx, my))
                     for bullet in self.bullets:
                         if bullet.disabled:
                             bullet.pos = bullet_data['bullet_pos']
                             bullet.vel = bullet_data['bullet_vel']
                             bullet.disabled = 0
+                            self.ammo -= AMMO_COST
                             break
                 
 
@@ -119,8 +122,13 @@ class Game():
                     bullet.disabled = 1
                     self.last_hit = pygame.time.get_ticks()
 
-        if pygame.time.get_ticks() - self.last_hit > 100:
+        if pygame.time.get_ticks() - self.last_hit > HIT_DELAY:
                     self.tarjet.image.fill(WHITE)
+
+        if pygame.time.get_ticks() - self.ammo_tick > AMMO_RECOVER_DELAY:
+            if self.ammo < MAX_AMMO:
+                self.ammo_tick = pygame.time.get_ticks()
+                self.ammo += AMMO_RECOVER_RATE
 
         self.player.update(dt, (mx, my))
         self.fps_update()
@@ -140,6 +148,9 @@ class Game():
 
         self.player.draw(layer0, self.font)
         self.tarjet.draw(layer0)
+
+        # Ammo bar
+        pygame.draw.line(layer0, BLUE, (self.display_size[0] - 65, 20), ( self.display_size[0] - 65 + (self.ammo / 2), 20), 10)
 
         # Blit Layers -------------------------------- #
         self.display.blit(layer0, Vector2())
