@@ -116,6 +116,7 @@ class Game():
                 collide = pygame.sprite.collide_rect(self.tarjet, bullet)
                 if collide:
                     self.tarjet.image.fill(RED)
+                    bullet.disabled = 1
                     self.last_hit = pygame.time.get_ticks()
 
         if pygame.time.get_ticks() - self.last_hit > 100:
