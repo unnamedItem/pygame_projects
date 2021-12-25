@@ -47,6 +47,7 @@ class Game():
         self.bullets = [ Bullet() for x in range(BULLET_POOL_SIZE) ]
 
         self.tarjet = Tarjet()
+        self.last_hit = 0
 
 
     # Run Game ---------------------------------- #
@@ -115,7 +116,9 @@ class Game():
                 collide = pygame.sprite.collide_rect(self.tarjet, bullet)
                 if collide:
                     self.tarjet.image.fill(RED)
-                else:
+                    self.last_hit = pygame.time.get_ticks()
+
+        if pygame.time.get_ticks() - self.last_hit > 100:
                     self.tarjet.image.fill(WHITE)
 
         self.player.update(dt, (mx, my))
