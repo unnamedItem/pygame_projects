@@ -94,6 +94,10 @@ class Game():
                 if event.button == BUTTON_LEFT:
                     self.weapon.shoot(self.bullets)
 
+            keys = pygame.key.get_pressed()
+            if keys[K_SPACE]:
+                self.weapon.shoot(self.bullets)
+
 
     # Update Game ------------------------------- #
     def update(self, dt) -> None:

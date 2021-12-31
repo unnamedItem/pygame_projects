@@ -44,7 +44,7 @@ class Bullet(pygame.sprite.Sprite):
         if self.disabled:
             return
 
-        surface.blit(self.image, self.pos)
+        surface.blit(self.image, self.pos - (vec(self.image.get_size()) / 2))
 
 
 
@@ -62,8 +62,8 @@ class Weapon(pygame.sprite.Sprite):
         self.accuracy = kwargs.get('accuracy') or 1
         self.accuracy_recover_rate = kwargs.get('accuracy_recover_rate') or 0.920
         self.current_accuracy = self.accuracy
-        self.recoil = kwargs.get('recoil') or 10
-        self.cadency = kwargs.get('cadency') or 50
+        self.recoil = kwargs.get('recoil') or 5
+        self.cadency = kwargs.get('cadency') or 30
         self.last_shoot_time = 0
 
         self.bullet_speed = kwargs.get('bullet_speed') or 500
@@ -88,11 +88,9 @@ class Weapon(pygame.sprite.Sprite):
         self.angle = vec(new_pos * GAME_SCALE - pointer).angle_to(vec(1,0))
         self.current_pos_canon = self.pos - vec(new_pos * GAME_SCALE - pointer).normalize() * magnitude
 
-        print(self.current_accuracy)
-
         if self.current_accuracy > self.accuracy:
-            if self.current_accuracy > 90:
-                self.current_accuracy = 90
+            if self.current_accuracy > 15:
+                self.current_accuracy = 15
             else:
                 self.current_accuracy *= self.accuracy_recover_rate
         else:
